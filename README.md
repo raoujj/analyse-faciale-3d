@@ -25,7 +25,47 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-## 3. Configurer DECA
+## 3. Installer DECA
+
+DECA doit être installé séparément sur l'ordinateur de test.
+
+```powershell
+cd D:\
+git clone https://github.com/YadiraF/DECA.git deca_install\\DECA
+cd deca_install\\DECA
+python -m venv venv_deca_test
+.\\venv_deca_test\\Scripts\\activate
+pip install -r requirements.txt
+```
+
+Les modèles préentraînés DECA et les fichiers FLAME doivent être téléchargés séparément depuis les ressources indiquées dans la documentation officielle DECA. Ils doivent ensuite être placés dans :
+
+```text
+D:\\deca_install\\DECA\\data\\
+```
+
+Le code et les modèles DECA sont séparés afin de ne pas inclure les fichiers lourds ou soumis à des conditions de distribution dans le dépôt de l'application.
+
+## 4. Vérifier l'installation DECA
+
+Vérifier la présence de :
+
+```text
+D:\\deca_install\\DECA\\demos\\demo_reconstruct.py
+D:\\deca_install\\DECA\\data\\
+D:\\deca_install\\DECA\\venv_deca_test\\Scripts\\python.exe
+```
+
+Tester DECA directement :
+
+```powershell
+cd D:\\deca_install\\DECA
+.\\venv_deca_test\\Scripts\\python.exe demos\\demo_reconstruct.py -i TestSamples\\examples --saveObj True
+```
+
+Si le test se termine sans erreur et produit un fichier `.obj`, DECA est correctement installé.
+
+## 5. Configurer DECA dans l'application
 
 Ouvrir :
 
@@ -53,9 +93,7 @@ DECA/
         └── python.exe
 ```
 
-Les modèles DECA doivent être téléchargés séparément.
-
-## 4. Démarrer le backend
+## 6. Démarrer le backend
 
 Dans un premier terminal :
 
@@ -71,7 +109,7 @@ Backend :
 http://127.0.0.1:8000
 ```
 
-## 5. Démarrer le frontend
+## 7. Démarrer le frontend
 
 Dans un deuxième terminal, depuis la racine du projet :
 
@@ -85,7 +123,7 @@ Application :
 http://127.0.0.1:5510
 ```
 
-## 6. Tester
+## 8. Tester
 
 1. Ouvrir `http://127.0.0.1:5510`.
 2. Sélectionner une image JPG, JPEG, PNG ou WEBP.
