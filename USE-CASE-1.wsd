@@ -1,0 +1,62 @@
+@startuml
+title Diagramme de cas d'utilisation de l'application
+
+left to right direction
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam usecase {
+  BackgroundColor #EAF3FF
+  BorderColor #1F4E78
+  ArrowColor #1F4E78
+}
+skinparam actor {
+  BorderColor #1F4E78
+  BackgroundColor #FFFFFF
+}
+skinparam rectangle {
+  BorderColor #1F4E78
+  BackgroundColor #F8FBFF
+  RoundCorner 15
+}
+
+actor "Médecin\npraticien" as Medecin
+
+rectangle "Application de simulation faciale 3D" {
+
+  usecase "Charger une\nphotographie" as UC1
+  usecase "Lancer la\nreconstruction 3D" as UC2
+  usecase "Visualiser le\nmodèle 3D" as UC3
+  usecase "Tourner et zoomer\nle modèle" as UC4
+
+  usecase "Ajuster les paramètres\nde prévisualisation" as UC5
+  usecase "Lancer une\nsimulation backend" as UC6
+
+  usecase "Sélectionner une zone\ndu visage" as UC7
+  usecase "Appliquer une\nmodification locale" as UC8
+  usecase "Annuler une\nmodification" as UC9
+  usecase "Réinitialiser le\nmodèle" as UC10
+
+  usecase "Consulter les messages\nd'état" as UC11
+}
+
+Medecin --> UC1
+Medecin --> UC2
+Medecin --> UC3
+Medecin --> UC4
+Medecin --> UC5
+Medecin --> UC6
+Medecin --> UC7
+Medecin --> UC8
+Medecin --> UC9
+Medecin --> UC10
+Medecin --> UC11
+
+UC2 .> UC1 : <<include>>
+UC3 .> UC2 : <<include>>
+UC4 .> UC3 : <<extend>>
+UC6 .> UC5 : <<include>>
+UC8 .> UC7 : <<include>>
+UC9 .> UC8 : <<extend>>
+UC10 .> UC8 : <<extend>>
+
+@enduml

@@ -1,0 +1,19 @@
+{
+  "folders": [
+    {
+      "path": "backend",
+      "name": "🐍 Backend Python"
+    },
+    {
+      "path": "mobile_app",
+      "name": "📱 Mobile Flutter"
+    },
+    {
+      "path": "docs",
+      "name": "📄 Documentation"
+    }
+  ],
+  "settings": {
+    "terminal.integrated.defaultProfile.windows": "PowerShell"
+  }
+}

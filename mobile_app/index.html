@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <meta name="theme-color" content="#f5f7fb" />
+
+  <title>Simulation faciale 3D</title>
+
+  <script
+    async
+    src="https://unpkg.com/es-module-shims@1.10.0/dist/es-module-shims.js">
+  </script>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.166.1/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.166.1/examples/jsm/"
+    }
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --panel-soft: #fbfcfe;
+      --text: #172033;
+      --muted: #667085;
+      --line: #dbe2ea;
+      --primary: #1d4ed8;
+      --primary-dark: #163eb0;
+      --dark: #101828;
+      --danger: #b42318;
+      --shadow: 0 12px 30px rgba(16, 24, 40, 0.08);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(
+          circle at top left,
+          rgba(29, 78, 216, 0.06),
+          transparent 30%
+        ),
+        linear-gradient(
+          180deg,
+          #f8fbff 0%,
+          var(--bg) 100%
+        );
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1480px, 100%);
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .header {
+      margin-bottom: 22px;
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .header p {
+      max-width: 900px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 390px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(
+          180deg,
+          var(--panel) 0%,
+          var(--panel-soft) 100%
+        );
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 20px;
+      padding: 20px;
+    }
+
+    .viewer-card {
+      min-height: 760px;
+      padding: 16px;
+    }
+
+    .section {
+      margin-bottom: 24px;
+    }
+
+    .section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
+      line-height: 1.15;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .field label,
+    .slider-head label {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .actions,
+    .edit-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button {
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 0;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      transition:
+        transform 160ms ease,
+        opacity 160ms ease,
+        background 160ms ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: var(--primary);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-dark);
+    }
+
+    .btn-dark {
+      color: #fff;
+      background: var(--dark);
+    }
+
+    .btn-light {
+      color: var(--text);
+      background: #eef2f7;
+    }
+
+    .slider-group {
+      margin-bottom: 18px;
+    }
+
+    .slider-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .slider-value {
+      min-width: 55px;
+      color: var(--muted);
+      text-align: right;
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .edit-panel {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #f8fafc;
+    }
+
+    .edit-panel h3 {
+      margin: 0 0 6px;
+      font-size: 17px;
+    }
+
+    .edit-panel p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      min-height: 64px;
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      color: #fff;
+      background: var(--dark);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .status.error {
+      background: var(--danger);
+    }
+
+    .viewer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 8px 8px 14px;
+    }
+
+    .viewer-top h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .viewer-note {
+      color: var(--muted);
+      font-size: 14px;
+      text-align: right;
+    }
+
+    #viewer {
+      width: 100%;
+      height: 680px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #eef3f8;
+      touch-action: none;
+    }
+
+    #viewer canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .hint {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      #viewer {
+        height: 560px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        padding: 14px;
+      }
+
+      .sidebar,
+      .viewer-card {
+        padding: 16px;
+      }
+
+      .actions,
+      .edit-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .viewer-top {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .viewer-note {
+        text-align: left;
+      }
+
+      #viewer {
+        height: 440px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <header class="header">
+      <h1>Simulation faciale 3D</h1>
+
+      <p>
+        Cliquez sur une zone du visage, puis faites-la glisser
+        pour appliquer une modification locale.
+      </p>
+    </header>
+
+    <section class="layout">
+      <aside class="card sidebar">
+        <section class="section">
+          <h2>Chargement</h2>
+
+          <div class="field">
+            <label for="photoInput">
+              Photo du patient
+            </label>
+
+            <input
+              id="photoInput"
+              type="file"
+              accept="image/*"
+            />
+          </div>
+
+          <div class="actions">
+            <button
+              id="reconstructBtn"
+              class="btn-primary"
+              type="button">
+              Reconstruire
+            </button>
+
+            <button
+              id="simulateBtn"
+              class="btn-dark"
+              type="button"
+              disabled>
+              Simulation backend
+            </button>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Simulation backend</h2>
+
+          <div class="slider-group">
+            <div class="slider-head">
+              <label for="tipProjectionSlider">
+                Projection pointe
+              </label>
+              <span
+                id="tipProjectionValue"
+                class="slider-value">
+                0.00
+              </span>
+            </div>
+
+            <input
+              id="tipProjectionSlider"
+              type="range"
+              min="-2"
+              max="2"
+              step="0.05"
+              value="0"
+              disabled />
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-head">
+              <label for="tipRotationSlider">
+                Rotation pointe
+              </label>
+              <span
+                id="tipRotationValue"
+                class="slider-value">
+                0.00
+              </span>
+            </div>
+
+            <input
+              id="tipRotationSlider"
+              type="range"
+              min="-2"
+              max="2"
+              step="0.05"
+              value="0"
+              disabled />
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-head">
+              <label for="bridgeSlider">
+                Arête nasale
+              </label>
+              <span
+                id="bridgeValue"
+                class="slider-value">
+                0.00
+              </span>
+            </div>
+
+            <input
+              id="bridgeSlider"
+              type="range"
+              min="-2"
+              max="2"
+              step="0.05"
+              value="0"
+              disabled />
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-head">
+              <label for="alarWidthSlider">
+                Largeur ailes
+              </label>
+              <span
+                id="alarWidthValue"
+                class="slider-value">
+                0.00
+              </span>
+            </div>
+
+            <input
+              id="alarWidthSlider"
+              type="range"
+              min="-2"
+              max="2"
+              step="0.05"
+              value="0"
+              disabled />
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-head">
+              <label for="chinSlider">
+                Menton
+              </label>
+              <span
+                id="chinValue"
+                class="slider-value">
+                0.00
+              </span>
+            </div>
+
+            <input
+              id="chinSlider"
+              type="range"
+              min="-2"
+              max="2"
+              step="0.05"
+              value="0"
+              disabled />
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-head">
+              <label for="jawSlider">
+                Mâchoire
+              </label>
+              <span
+                id="jawValue"
+                class="slider-value">
+                0.00
+              </span>
+            </div>
+
+            <input
+              id="jawSlider"
+              type="range"
+              min="-2"
+              max="2"
+              step="0.05"
+              value="0"
+              disabled />
+          </div>
+        </section>
+
+        <section class="section edit-panel">
+          <h3>Édition locale par target</h3>
+
+          <p>
+            Cliquez sur le nez, l’œil, la joue ou le menton,
+            puis faites glisser la zone sélectionnée.
+          </p>
+
+          <div class="slider-group">
+            <div class="slider-head">
+              <label for="brushRadius">Rayon</label>
+              <span
+                id="brushRadiusValue"
+                class="slider-value">
+                0.055
+              </span>
+            </div>
+
+            <input
+              id="brushRadius"
+              type="range"
+              min="0.01"
+              max="0.14"
+              step="0.005"
+              value="0.055"
+              disabled />
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-head">
+              <label for="brushStrength">Intensité</label>
+              <span
+                id="brushStrengthValue"
+                class="slider-value">
+                0.65
+              </span>
+            </div>
+
+            <input
+              id="brushStrength"
+              type="range"
+              min="0.05"
+              max="1.5"
+              step="0.05"
+              value="0.65"
+              disabled />
+          </div>
+
+          <div class="edit-actions">
+            <button
+              id="undoEditBtn"
+              class="btn-light"
+              type="button"
+              disabled>
+              Annuler
+            </button>
+
+            <button
+              id="resetEditBtn"
+              class="btn-light"
+              type="button"
+              disabled>
+              Réinitialiser
+            </button>
+          </div>
+        </section>
+
+        <div id="info" class="status">
+          Application prête.
+        </div>
+      </aside>
+
+      <section class="card viewer-card">
+        <div class="viewer-top">
+          <h2>Viewer 3D</h2>
+
+          <div class="viewer-note">
+            Cliquez puis faites glisser une zone du visage
+          </div>
+        </div>
+
+        <div id="viewer"></div>
+
+        <p class="hint">
+          Le point rouge indique la cible sélectionnée.
+          Le rayon contrôle la zone affectée et l’intensité
+          contrôle la force du déplacement.
+        </p>
+      </section>
+    </section>
+  </main>
+
+  <script
+    type="module"
+    src="./js/main.js">
+  </script>
+</body>
+</html>

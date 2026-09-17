@@ -1,0 +1,38 @@
+# Environnements Python
+venv/
+.venv/
+venv_deca_test/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+
+# Résultats locaux
+deca-results/
+
+# Fichiers générés
+*.obj
+*.mtl
+*.png
+*.jpg
+*.jpeg
+*.webp
+
+# Modèles DECA lourds
+*.pt
+*.pth
+*.pkl
+*.ckpt
+*.tar
+*.zip
+
+# Configuration locale
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Système
+.DS_Store
+Thumbs.db
