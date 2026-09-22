@@ -36,3 +36,11 @@ deca-results/
 # Système
 .DS_Store
 Thumbs.db
+external/DECA/TestSamples/examples/results/
+
+external/DECA/data/deca_model.tar
+external/DECA/data/generic_model.pkl
+external/DECA/data/texture_data_256.npy
+
+external/pytorch3d/tests/pulsar/reference/nr0000-out.pth
+external/DECA/Python-3.10.21/
