@@ -178,6 +178,4 @@ Les éléments suivants ne doivent pas être commités :
 
 Chaque utilisateur doit créer son propre environnement virtuel et fournir séparément les modèles requis.
 
-## Licence et modèles
 
-Respecter les licences de DECA, PyTorch3D, FLAME et des modèles téléchargés. Vérifier les conditions d’utilisation avant toute redistribution ou utilisation commerciale.
